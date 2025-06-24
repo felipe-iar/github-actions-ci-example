@@ -1,4 +1,4 @@
-name: IAR project on GitHub Actions
+name: arm
 
 # This workflow uses cloud-ready images with
 # the IAR Build Tools for Arm with ST device support
@@ -32,13 +32,13 @@ jobs:
       
       - name: Build library
         run: |
-          iarbuild project/EWARM/ChecksumLibrary.ewp -make Debug -log all
+          iarbuild arm/EWARM/ChecksumLibrary.ewp -make Debug -log all
 
       - name: Upload library
         uses: actions/upload-artifact@v4
         with:
           name: library
-          path: project/EWARM/Debug/Exe/ChecksumLibrary.a
+          path: arm/EWARM/Debug/Exe/ChecksumLibrary.a
           if-no-files-found: error
           
   cstat-library:
@@ -50,14 +50,14 @@ jobs:
           
       - name: C-STAT - Library
         run: |
-          iarbuild project/EWARM/ChecksumLibrary.ewp -cstat_analyze Debug -log all
-          iarbuild project/EWARM/ChecksumLibrary.ewp -cstat_report Debug -log all
+          iarbuild arm/EWARM/ChecksumLibrary.ewp -cstat_analyze Debug -log all
+          iarbuild arm/EWARM/ChecksumLibrary.ewp -cstat_report Debug -log all
 
       - name: Upload library report (C-STAT)
         uses: actions/upload-artifact@v4
         with:
           name: library-report.html
-          path: project/EWARM/Debug/C-STAT/*.html
+          path: arm/EWARM/Debug/C-STAT/*.html
           if-no-files-found: error
 
   build-project:
@@ -71,17 +71,17 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: library
-          path: project/EWARM/Debug/Exe/
+          path: arm/EWARM/Debug/Exe/
 
       - name: Build project
         run: |             
-          iarbuild project/EWARM/project.ewp -make Debug -log all
+          iarbuild arm/EWARM/project.ewp -make Debug -log all
 
       - name: Upload project
         uses: actions/upload-artifact@v4
         with:
           name: project
-          path: project/EWARM/Debug/Exe/project.out
+          path: arm/EWARM/Debug/Exe/project.out
           if-no-files-found: error
 
   cstat-project:
@@ -93,14 +93,14 @@ jobs:
       - uses: actions/checkout@v4
       - name: Static Analysis
         run: |
-          iarbuild project/EWARM/project.ewp -cstat_analyze Debug -log all
-          iarbuild project/EWARM/project.ewp -cstat_report Debug -log all
+          iarbuild arm/EWARM/project.ewp -cstat_analyze Debug -log all
+          iarbuild arm/EWARM/project.ewp -cstat_report Debug -log all
 
       - name: Upload project report (C-STAT)
         uses: actions/upload-artifact@v4
         with:
           name: project-cstat.html
-          path: project/EWARM/project/C-STAT/*.html
+          path: arm/EWARM/project/C-STAT/*.html
           if-no-files-found: error
 
   crun-project:
@@ -113,7 +113,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: project
-          path: project/EWARM/Debug/Exe/
+          path: arm/EWARM/Debug/Exe/
           
       - name: Runtime Analysis (C-RUN)
         run: |
@@ -121,7 +121,7 @@ jobs:
             /opt/iar/cxarm/arm/bin/libarmPROC.so \
             /opt/iar/cxarm/arm/bin/libarmSIM2.so \
             --plugin=/opt/iar/cxarm/arm/bin/libarmLibsupportUniversal.so \
-            --debug_file=project/EWARM/Debug/Exe/project.out \
+            --debug_file=arm/EWARM/Debug/Exe/project.out \
             --rtc_enable \
             --rtc_output=crun-messages.txt \
             --timeout=2000000 \
